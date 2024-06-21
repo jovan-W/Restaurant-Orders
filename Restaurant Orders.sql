@@ -1,8 +1,16 @@
--- Drop the Null
-SELECT * FROM order_details
+-- Count total
+SELECT COUNT(*) total FROM order_details;
+
+-- Count total missing values
+SELECT COUNT(*) missing_values FROM order_details
 WHERE item_id IS NULL;
+
+-- DROP NULL
 DELETE FROM order_details
 WHERE item_id IS NULL;
+
+-- Count total after drop null
+SELECT COUNT(*) total FROM order_details;
 
 -- What were the least and most ordered items? What categories were they in?
 SELECT 
@@ -85,11 +93,11 @@ SELECT *, 'less_orders' orders FROM less_orders;
 -- 12 am is the most orders and 10 pm is the less orders
 
 -- Which cuisines should we focus on developing more menu items for based on the data?
-SELECT item_name, category, COUNT(*) total_sold, SUM(price) total_sales
+SELECT category, COUNT(*) total_sold, SUM(price) total_sales
 FROM order_details od JOIN menu_items mi ON od.item_id = mi.menu_item_id
-GROUP BY 1, 2
-ORDER BY 3 DESC;
--- We should focus more on Hamubrger, Edamame, Korean Beef Bowl because it the top contribute's  for the sales
+GROUP BY 1
+ORDER BY 2 DESC;
+-- We should focus on Asian and Italian Category
 
 -- Category
 SELECT DISTINCT(category) total_category FROM menu_items;
@@ -97,7 +105,7 @@ SELECT DISTINCT(category) total_category FROM menu_items;
 
 -- Total Menu
 SELECT COUNT(item_name) total_menu FROM menu_items;
--- Total 32 menu
+-- Total 32 menu	
 
 -- Total Menu per Category
 SELECT category, COUNT(item_name) total_menu FROM menu_items
@@ -117,14 +125,14 @@ SELECT ROUND(AVG(total_sales), 2) average_sales_daily FROM total_sales_per_day;
 -- Average Daily Sales is 1769.09
 
 -- Average Customer
-WITH ta AS (
+WITH avgcus AS (
 SELECT 
 	order_date, 
 	COUNT(DISTINCT(order_id)) total_customer
 FROM order_details
 GROUP BY 1
 )
-SELECT ROUND(AVG(total_customer)) average_total_customer FROM ta;
+SELECT ROUND(AVG(total_customer)) average_total_customer FROM avgcusg;
 -- The Average Customer is 59 customer
 
 -- Total Sales, Total Order, Total Customer
@@ -210,6 +218,8 @@ FROM cteone
 )
 SELECT
 	*,
-    CONCAT(ROUND((total_sales - previous_sales) / previous_sales * 100, 2), '%') growth_percentage
+    CONCAT(ROUND((total_sales - previous_sales) 
+    / 
+    previous_sales * 100, 2), '%') growth_percentage
 FROM ctetwo
 ORDER BY month;
